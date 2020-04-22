@@ -1,0 +1,10 @@
+{
+    "name": "Terminal",
+    "description": "Block that executes Javascript code",
+    "health": -1,
+    "size": 1,
+    "requirements": [],
+    "category": "effect",
+    "configurable": true,
+    "update": true
+}
