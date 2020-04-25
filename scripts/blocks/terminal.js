@@ -39,8 +39,6 @@ const terminal = extendContent(Block, "terminal", {
         if (!this.text) this.text = "";
 
         table.addImageButton(Icon.pencil, Styles.clearTransi, run(() => {
-
-            /** MOBILE VERSION NOT WORKS */
             if (Vars.mobile) {
                 // Mobile and desktop version have different dialogs
 
