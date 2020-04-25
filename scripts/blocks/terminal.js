@@ -44,10 +44,10 @@ const terminal = extendContent(Block, "terminal", {
             if (Vars.mobile) {
                 // Mobile and desktop version have different dialogs
 
-                const input = new TextInput();
+                const input = new Input.TextInput();
                 input.text = this.text;
                 input.multiline = true;
-                input.accepted = out => this.text = out;
+                input.accepted = cons(out => this.text = out);
 
                 Core.input.getTextInput(input);
             } else {
