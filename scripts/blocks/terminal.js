@@ -72,7 +72,7 @@ const terminal = extendContent(Block, "terminal", {
 
                 // If there is no text in block return undefined
                 // In other case put output to result var
-                const result = this.text ? eval(this.text) : undefined;
+                const result = this.text ? eval.bind(Vars.mods.getScripts(), this.text)() : undefined;
 
                 // Log with [I] mark
                 Log.info("[#ffea4a]Terminal: [] " + result);
