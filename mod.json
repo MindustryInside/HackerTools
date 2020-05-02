@@ -1,7 +1,8 @@
 {
     "name": "hacker-tools",
-    "displayName": "[royal]Hacker tools[] \n",
+    "displayName": "[royal]Hacker tools[]\n",
     "description": "Adds some \"hacker\" blocks.",
-    "author": "[red]Summet[orange]#4530",
-    "version": "1.0"
+    "author": "[red]Summet[orange]#4530, [tan]Félix [slate]Córvus",
+    "version": "1.0",
+    "minGameVersion": "103"
 }

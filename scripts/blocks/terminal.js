@@ -2,16 +2,8 @@ const terminal = extendContent(Block, "terminal", {
 
     // Generate icons in block select menu
     generateIcons() {
-        if (this.error !== true && this.error !== false) this.error = false;
-
-        const terminalBase = Core.atlas.find(modName + "-terminal");
-        const terminalDisplayWhite = Core.atlas.find(modName + "-terminal-display-white");
-
-        // Other icons:
-        // const terminalDisplayBlue = Core.atlas.find(modName + "-terminal-display-blue");
-        // const terminalDisplayOrange = Core.atlas.find(modName + "-terminal-display-orange");
-        // const terminalDisplayRed = Core.atlas.find(modName + "-terminal-display-red");
-
+        const terminalBase = Core.atlas.find(this.name);
+        const terminalDisplayWhite = Core.atlas.find(this.name + "-display-white");
         return [terminalBase, terminalDisplayWhite];
     },
 
@@ -25,11 +17,14 @@ const terminal = extendContent(Block, "terminal", {
     drawLayer(tile) {
 
         // If error draw red display instead blue
-        const display = this.error
-            ? Core.atlas.find(this.name + "-display-red")
-            : Core.atlas.find(this.name + "-display-blue");
+        const display = this.error ? "-display-red" : "-display-blue";
 
-        Draw.rect(display, tile.drawx(), tile.drawy());
+        Draw.rect(Core.atlas.find(this.name + display), tile.drawx(), tile.drawy());
+
+        // Flash
+        if (Mathf.sin(Time.time(), 10, 1) > 0){
+            Draw.rect(Core.atlas.find(this.name + display + "-caret"), tile.drawx(), tile.drawy());
+	    }
     },
 
     // Called when player clicks on block
