@@ -2,15 +2,13 @@ const terminal = extendContent(Block, "terminal", {
 
     // Generate icons in block select menu
     generateIcons() {
-        if (this.error !== true && this.error !== false) this.error = false;
-
-        const terminalBase = Core.atlas.find(modName + "-terminal");
-        const terminalDisplayWhite = Core.atlas.find(modName + "-terminal-display-white");
+        const terminalBase = Core.atlas.find(this.name);
+        const terminalDisplayWhite = Core.atlas.find(this.name + "-display-white");
 
         // Other icons:
-        // const terminalDisplayBlue = Core.atlas.find(modName + "-terminal-display-blue");
-        // const terminalDisplayOrange = Core.atlas.find(modName + "-terminal-display-orange");
-        // const terminalDisplayRed = Core.atlas.find(modName + "-terminal-display-red");
+        // const terminalDisplayBlue = Core.atlas.find(this.name + "-display-blue");
+        // const terminalDisplayOrange = Core.atlas.find(this.name + "-display-orange");
+        // const terminalDisplayRed = Core.atlas.find(this.name + "-display-red");
 
         return [terminalBase, terminalDisplayWhite];
     },
