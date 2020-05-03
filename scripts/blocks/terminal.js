@@ -15,9 +15,10 @@ const terminal = extendContent(Block, "terminal", {
 
     // Draw block display
     drawLayer(tile) {
+        const entity = tile.ent();
 
         // If error draw red display instead blue
-        const display = this.error ? "-display-red" : "-display-blue";
+        const display = entity.getError() ? "-display-red" : "-display-blue";
 
         Draw.rect(Core.atlas.find(this.name + display), tile.drawx(), tile.drawy());
 
@@ -29,18 +30,17 @@ const terminal = extendContent(Block, "terminal", {
 
     // Called when player clicks on block
     buildConfiguration(tile, table) {
+        const entity = tile.ent();
 
-        // Check if block has text
-        if (!this.text) this.text = "";
-
+        // Add buttons
         table.addImageButton(Icon.pencil, Styles.clearTransi, run(() => {
             if (Vars.mobile) {
-                // Mobile and desktop version have different dialogs
 
+                // Mobile and desktop version have different dialogs
                 const input = new Input.TextInput();
-                input.text = this.text;
+                input.text = entity.getText();
                 input.multiline = true;
-                input.accepted = cons(out => this.text = out);
+                input.accepted = cons(text => entity.setText(text));
 
                 Core.input.getTextInput(input);
             } else {
@@ -49,11 +49,11 @@ const terminal = extendContent(Block, "terminal", {
                 dialog.setFillParent(false);
 
                 // Add text area to dialog
-                const textArea = dialog.cont.add(new TextArea(this.text)).size(380, 160).get();
+                const textArea = dialog.cont.add(new TextArea(entity.getText())).size(380, 160).get();
 
                 // Add "ok" button to dialog
                 dialog.buttons.addButton("$ok", run(() => {
-                    this.text = textArea.getText();
+                    entity.setText(textArea.getText());
                     dialog.hide();
                 }));
 
@@ -67,18 +67,45 @@ const terminal = extendContent(Block, "terminal", {
 
                 // If there is no text in block return undefined
                 // In other case put output to result var
-                const result = this.text ? eval.bind(Vars.mods.getScripts(), this.text)() : undefined;
+                const result = entity.getText()
+                    ? eval.bind(Vars.mods.getScripts(), entity.getText())()
+                    : undefined;
 
                 // Log with [I] mark
                 Log.info("[#ffea4a]Terminal: [] " + result);
-                this.error = false;
+                entity.setError(false);
 
             } catch (err) { // If error appear print it instead crash the game
 
                 // Log with [E] mark
                 Log.err("[#ff5a54]Terminal: []" + err);
-                this.error = true;
+                entity.setError(true);
             }
         })).size(40);
     },
+});
+
+terminal.entityType = prov(() => {
+    const entity = extend(TileEntity, {
+        getText() {
+            return this._text;
+        },
+
+        setText(text) {
+            this._text = text;
+        },
+
+        getError() {
+            return this._error;
+        },
+
+        setError(error) {
+            this._error = error;
+        }
+    });
+
+    entity.setText("");
+    entity.setError(false);
+
+    return entity;
 });
