@@ -23,7 +23,7 @@ const terminal = extendContent(Block, "terminal", {
         Draw.rect(Core.atlas.find(this.name + display), tile.drawx(), tile.drawy());
 
         // Flash
-        if (Mathf.sin(Time.time(), 10, 1) > 0){
+        if (Mathf.sin(Time.time(), 10, 1) > 0) {
             Draw.rect(Core.atlas.find(this.name + display + "-caret"), tile.drawx(), tile.drawy());
 	    }
     },
@@ -66,13 +66,13 @@ const terminal = extendContent(Block, "terminal", {
             try {
 
                 // If there is no text in block return undefined
-                // In other case put output to result var
-                const result = entity.getText()
+                // In other case put output to entity._result
+                entity.setResult(entity.getText()
                     ? eval.bind(Vars.mods.getScripts(), entity.getText())()
-                    : undefined;
+                    : undefined);
 
                 // Log with [I] mark
-                Log.info("[#ffea4a]Terminal: [] " + result);
+                Log.info("[#ffea4a]Terminal: [] " + entity.getResult());
                 entity.setError(false);
 
             } catch (err) { // If error appear print it instead crash the game
@@ -101,6 +101,14 @@ terminal.entityType = prov(() => {
 
         setError(error) {
             this._error = error;
+        },
+
+        setResult(result) {
+            this._result = result;
+        },
+
+        getResult() {
+            return this._result;
         }
     });
 
