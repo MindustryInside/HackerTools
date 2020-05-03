@@ -18,14 +18,16 @@ const terminal = extendContent(Block, "terminal", {
         const entity = tile.ent();
 
         // If error draw red display instead blue
-        const display = entity.getError() ? "-display-red" : "-display-blue";
-
-        Draw.rect(Core.atlas.find(this.name + display), tile.drawx(), tile.drawy());
+        Draw.rect(Core.atlas.find(
+            this.name + entity.getError() ? "-display-red" : "-display-blue"
+	), tile.drawx(), tile.drawy());
 
         // Flash
         if (Mathf.sin(Time.time(), 10, 1) > 0) {
-            Draw.rect(Core.atlas.find(this.name + display + "-caret"), tile.drawx(), tile.drawy());
-	    }
+            Draw.rect(Core.atlas.find(
+                this.name + entity.getError() ? "-display-red" : "-display-blue" + "-caret"
+	    ), tile.drawx(), tile.drawy());
+        }
     },
 
     // Called when player clicks on block
