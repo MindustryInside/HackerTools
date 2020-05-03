@@ -19,13 +19,13 @@ const terminal = extendContent(Block, "terminal", {
 
         // If error draw red display instead blue
         Draw.rect(Core.atlas.find(
-		this.name + entity.getError() ? "-display-red" : "-display-blue"
+            this.name + entity.getError() ? "-display-red" : "-display-blue"
 	), tile.drawx(), tile.drawy());
 
         // Flash
         if (Mathf.sin(Time.time(), 10, 1) > 0) {
             Draw.rect(Core.atlas.find(
-		    this.name + entity.getError() ? "-display-red" : "-display-blue" + "-caret"
+                this.name + entity.getError() ? "-display-red" : "-display-blue" + "-caret"
 	    ), tile.drawx(), tile.drawy());
         }
     },
