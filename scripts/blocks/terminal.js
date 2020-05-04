@@ -3,7 +3,7 @@ const terminal = extendContent(Block, "terminal", {
     // Generate icons in block select menu
     generateIcons() {
         const terminalBase = Core.atlas.find(this.name);
-        const terminalDisplayWhite = Core.atlas.find(this.name + "-display-white");
+        const terminalDisplayWhite = Core.atlas.find(this.name + "-display-icon");
         return [terminalBase, terminalDisplayWhite];
     },
 
@@ -18,16 +18,15 @@ const terminal = extendContent(Block, "terminal", {
         const entity = tile.ent();
 
         // If error draw red display instead blue
-        Draw.rect(Core.atlas.find(
-            this.name + (entity.getError() ? "-display-red" : "-display-blue")
-        ), tile.drawx(), tile.drawy());
+        Draw.color(entity.getError() ? Color.valueOf("E55454") : Color.valueOf("88A4FF"));
 
-        // Flash
+        Draw.rect(Core.atlas.find(this.name + "-display"), tile.drawx(), tile.drawy());
+
+        // Caret flash
         if (Mathf.sin(Time.time(), 10, 1) > 0) {
-            Draw.rect(Core.atlas.find(
-                this.name + (entity.getError() ? "-display-red" : "-display-blue") + "-caret"
-            ), tile.drawx(), tile.drawy());
+            Draw.rect(Core.atlas.find(this.name + "-display-caret"), tile.drawx(), tile.drawy());
         }
+        Draw.reset();
     },
 
     // Called when player clicks on block
