@@ -1,9 +1,13 @@
+// Shortcuts
+const getFromBundle = prop => Core.bundle.get(prop);
+const getFromAtlas = prop => Core.atlas.find(prop);
+
 const terminal = extendContent(Block, "terminal", {
 
     // Generate icons in block select menu
     generateIcons() {
-        const terminalBase = Core.atlas.find(this.name);
-        const terminalDisplayWhite = Core.atlas.find(this.name + "-display-icon");
+        const terminalBase = getFromAtlas(this.name);
+        const terminalDisplayWhite = getFromAtlas(this.name + "-display-icon");
         return [terminalBase, terminalDisplayWhite];
     },
 
@@ -20,11 +24,11 @@ const terminal = extendContent(Block, "terminal", {
         // If error draw red display instead blue
         Draw.color(entity.getError() ? Color.valueOf("E55454") : Color.valueOf("88A4FF"));
 
-        Draw.rect(Core.atlas.find(this.name + "-display"), tile.drawx(), tile.drawy());
+        Draw.rect(getFromAtlas(this.name + "-display"), tile.drawx(), tile.drawy());
 
         // Caret flash
         if (Mathf.sin(Time.time(), 10, 1) > 0) {
-            Draw.rect(Core.atlas.find(this.name + "-display-caret"), tile.drawx(), tile.drawy());
+            Draw.rect(getFromAtlas(this.name + "-display-caret"), tile.drawx(), tile.drawy());
         }
         Draw.reset();
     },
@@ -46,11 +50,12 @@ const terminal = extendContent(Block, "terminal", {
                 Core.input.getTextInput(input);
             } else {
                 // Create dialog
-                const dialog = new FloatingDialog("Execute JavaScript");
+                const dialog = new FloatingDialog(getFromBundle("terminal-caption"));
                 dialog.setFillParent(false);
 
                 // Add text area to dialog
-                const textArea = dialog.cont.add(new TextArea(entity.getText())).size(380, 160).get();
+                const textArea = new TextArea(entity.getText());
+                dialog.cont.add(textArea).size(380, 160);
 
                 // Add "ok" button to dialog
                 dialog.buttons.addButton("$ok", run(() => {
@@ -73,13 +78,13 @@ const terminal = extendContent(Block, "terminal", {
                     : undefined);
 
                 // Log with [I] mark
-                Log.info("[#ffea4a]Terminal: [] " + entity.getResult());
+                Log.info("[#ffea4a]" + this.localizedName + ": [] " + entity.getResult());
                 entity.setError(false);
 
             } catch (err) { // If error appear print it instead crash the game
 
                 // Log with [E] mark
-                Log.err("[#ff5a54]Terminal: []" + err);
+                Log.err("[#ff5a54]" + this.localizedName + ": []" + err);
                 entity.setError(true);
             }
         })).size(40);
