@@ -2,10 +2,10 @@ const terminal = extendContent(Block, "terminal", {
 
     // Loading texture regions 
     load() {
-		this.super$load();
-		this.region = Core.atlas.find(this.name);
+        this.super$load();
+        this.region = Core.atlas.find(this.name);
         this.displayRegion = Core.atlas.find(this.name + "-display");
-		this.caretRegion = Core.atlas.find(this.name + "-display-caret");
+        this.caretRegion = Core.atlas.find(this.name + "-display-caret");
     },
 
     // Generate icons in block select menu
@@ -113,12 +113,26 @@ terminal.entityType = prov(() => {
             this._error = error;
         },
 
+        getResult() {
+            return this._result;
+        },
+
         setResult(result) {
             this._result = result;
         },
 
-        getResult() {
-            return this._result;
+        write(stream) {
+            this.super$write(stream);
+            stream.writeUTF(this.getText());
+            stream.writeBoolean(this.getError());
+            stream.writeUTF(this.getResult());
+        },
+
+        read(stream, revision) {
+            this.super$read(stream, revision);
+            this.setText(stream.readUTF());
+            this.setError(stream.readBoolean());
+            this.setResult(stream.readUTF());
         }
     });
 
