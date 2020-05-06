@@ -1,19 +1,23 @@
-// Shortcuts
-const getFromBundle = prop => Core.bundle.get(prop);
-const getFromAtlas = prop => Core.atlas.find(prop);
-
 const terminal = extendContent(Block, "terminal", {
+
+    // Loading texture regions 
+    load() {
+		this.super$load();
+		this.region = Core.atlas.find(this.name);
+        this.displayRegion = Core.atlas.find(this.name + "-display");
+		this.caretRegion = Core.atlas.find(this.name + "-display-caret");
+    },
 
     // Generate icons in block select menu
     generateIcons() {
-        const terminalBase = getFromAtlas(this.name);
-        const terminalDisplayWhite = getFromAtlas(this.name + "-display-icon");
-        return [terminalBase, terminalDisplayWhite];
+        const terminalBase = Core.atlas.find(this.name);
+        const terminalDisplay = Core.atlas.find(this.name + "-display-icon");
+        return [terminalBase, terminalDisplay];
     },
 
     // Draw block
     draw(tile) {
-        Draw.rect(this.name, tile.drawx(), tile.drawy());
+        Draw.rect(this.region, tile.drawx(), tile.drawy());
         this.drawLayer(tile);
     },
 
@@ -24,11 +28,11 @@ const terminal = extendContent(Block, "terminal", {
         // If error draw red display instead blue
         Draw.color(entity.getError() ? Color.valueOf("E55454") : Color.valueOf("88A4FF"));
 
-        Draw.rect(getFromAtlas(this.name + "-display"), tile.drawx(), tile.drawy());
+        Draw.rect(this.displayRegion, tile.drawx(), tile.drawy());
 
         // Caret flash
         if (Mathf.sin(Time.time(), 10, 1) > 0) {
-            Draw.rect(getFromAtlas(this.name + "-display-caret"), tile.drawx(), tile.drawy());
+            Draw.rect(this.caretRegion, tile.drawx(), tile.drawy());
         }
         Draw.reset();
     },
@@ -50,7 +54,7 @@ const terminal = extendContent(Block, "terminal", {
                 Core.input.getTextInput(input);
             } else {
                 // Create dialog
-                const dialog = new FloatingDialog(getFromBundle("terminal-caption"));
+                const dialog = new FloatingDialog(Core.bundle.get("block." + this.name + ".terminal-caption"));
                 dialog.setFillParent(false);
 
                 // Add text area to dialog
