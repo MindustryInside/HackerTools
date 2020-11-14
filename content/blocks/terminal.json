@@ -2,7 +2,7 @@
     "health": -1,
     "size": 1,
     "requirements": [],
-    "category": "effect",
+    "category": "logic",
     "configurable": true,
     "update": true
 }

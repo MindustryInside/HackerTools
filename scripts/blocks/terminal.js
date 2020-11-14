@@ -1,4 +1,4 @@
-const terminal = extendContent(Block, "terminal", {
+const Terminal = extendContent(Block, "terminal", {
 
     // Loading texture regions 
     load() {
@@ -9,94 +9,94 @@ const terminal = extendContent(Block, "terminal", {
     },
 
     // Generate icons in block select menu
-    generateIcons() {
+    icons() {
         const terminalBase = Core.atlas.find(this.name);
         const terminalDisplay = Core.atlas.find(this.name + "-display-icon");
         return [terminalBase, terminalDisplay];
     },
-
-    // Draw block
-    draw(tile) {
-        Draw.rect(this.region, tile.drawx(), tile.drawy());
-        this.drawLayer(tile);
-    },
-
-    // Draw block display
-    drawLayer(tile) {
-        const entity = tile.ent();
-
-        // If error draw red display instead blue
-        Draw.color(entity.getError() ? Color.valueOf("E55454") : Color.valueOf("88A4FF"));
-
-        Draw.rect(this.displayRegion, tile.drawx(), tile.drawy());
-
-        // Caret flash
-        if (Mathf.sin(Time.time(), 10, 1) > 0) {
-            Draw.rect(this.caretRegion, tile.drawx(), tile.drawy());
-        }
-        Draw.reset();
-    },
-
-    // Called when player clicks on block
-    buildConfiguration(tile, table) {
-        const entity = tile.ent();
-
-        // Add buttons
-        table.addImageButton(Icon.pencil, Styles.clearTransi, run(() => {
-            if (Vars.mobile) {
-
-                // Mobile and desktop version have different dialogs
-                const input = new Input.TextInput();
-                input.text = entity.getText();
-                input.multiline = true;
-                input.accepted = cons(text => entity.setText(text));
-
-                Core.input.getTextInput(input);
-            } else {
-                // Create dialog
-                const dialog = new FloatingDialog(Core.bundle.get("block." + this.name + ".terminal-caption"));
-                dialog.setFillParent(false);
-
-                // Add text area to dialog
-                const textArea = new TextArea(entity.getText());
-                dialog.cont.add(textArea).size(380, 160);
-
-                // Add "ok" button to dialog
-                dialog.buttons.addButton("$ok", run(() => {
-                    entity.setText(textArea.getText());
-                    dialog.hide();
-                }));
-
-                // Show it
-                dialog.show();
-            }
-        })).size(40);
-
-        table.addImageButton(Icon.ok, Styles.clearTransi, run(() => {
-            try {
-
-                // If there is no text in block return undefined
-                // In other case put output to entity._result
-                entity.setResult(entity.getText()
-                    ? eval.bind(Vars.mods.getScripts(), entity.getText())()
-                    : undefined);
-
-                // Log with [I] mark
-                Log.info("[#ffea4a]" + this.localizedName + ": [] " + entity.getResult());
-                entity.setError(false);
-
-            } catch (err) { // If error appear print it instead crash the game
-
-                // Log with [E] mark
-                Log.err("[#ff5a54]" + this.localizedName + ": []" + err);
-                entity.setError(true);
-            }
-        })).size(40);
-    },
 });
 
-terminal.entityType = prov(() => {
-    const entity = extend(TileEntity, {
+Terminal.buildType = prov(() => {
+    const TerminalBuild = extend(Building, {
+
+        // Draw block
+        draw() {
+            Draw.rect(Terminal.region, tile.drawx(), tile.drawy());
+            this.drawLayer();
+        },
+	    
+        // Draw block display
+        drawLayer() {
+	    
+            // If error draw red display instead blue
+            Draw.color(this.getError() ? Color.valueOf("E55454") : Color.valueOf("88A4FF"));
+	    
+            Draw.rect(Terminal.displayRegion, tile.drawx(), tile.drawy());
+	    
+            // Caret flash
+            if (Mathf.sin(Time.time(), 10, 1) > 0) {
+                Draw.rect(Terminal.caretRegion, tile.drawx(), tile.drawy());
+            }
+            Draw.reset();
+        },
+	    
+        // Called when player clicks on block
+        buildConfiguration(table) {
+	    
+            // Add buttons
+            table.button(Icon.pencil, () => {
+                if (Vars.mobile) {
+	    
+                    // Mobile and desktop version have different dialogs
+                    const input = new Input.TextInput();
+                    input.text = this.getText();
+                    input.multiline = true;
+                    input.accepted = cons(text => this.setText(text));
+	    
+                    Core.input.getTextInput(input);
+                } else {
+                    // Create dialog
+                    const dialog = new BaseDialog(Core.bundle.get("block." + Terminal.name + ".terminal-caption"));
+                    dialog.setFillParent(false);
+	    
+                    // Add text area to dialog
+                    const textArea = new TextArea(this.getText());
+                    dialog.cont.add(textArea).size(380, 160);
+	    
+                    // Add "ok" button to dialog
+                    dialog.buttons.button("@ok", run(() => {
+                        this.setText(textArea.getText());
+                        dialog.hide();
+                    }));
+	    
+                    // Show it
+                    dialog.show();
+                }
+				this.deselect();
+            }).size(40);
+	    
+            table.button(Icon.terminal, () => {
+                try {
+	    
+                    // If there is no text in block return undefined
+                    // In other case put output to entity._result
+                    this.setResult(this.getText()
+                        ? eval.bind(Vars.mods.getScripts(), this.getText())()
+                        : undefined);
+	    
+                    // Log with [I] mark
+                    Log.info("[#ffea4a]" + this.localizedName + ": [] " + this.getResult());
+                    this.setError(false);
+	    
+                } catch (err) { // If error appear print it instead crash the game
+	    
+                    // Log with [E] mark
+                    Log.err("[#ff5a54]" + this.localizedName + ": []" + err);
+                    this.setError(true);
+                }
+            }).size(40);
+        },
+
         getText() {
             return this._text;
         },
@@ -123,21 +123,16 @@ terminal.entityType = prov(() => {
 
         write(stream) {
             this.super$write(stream);
-            stream.writeUTF(this.getText());
-            stream.writeBoolean(this.getError());
-            stream.writeUTF(this.getResult());
+			stream.str(this.getText().toString());
+			stream.bool(this.getError());
         },
 
         read(stream, revision) {
             this.super$read(stream, revision);
-            this.setText(stream.readUTF());
-            this.setError(stream.readBoolean());
-            this.setResult(stream.readUTF());
+			this.setText(stream.str());
+			this.setError(stream.bool());
         }
     });
 
-    entity.setText("");
-    entity.setError(false);
-
-    return entity;
+    return TerminalBuild;
 });
