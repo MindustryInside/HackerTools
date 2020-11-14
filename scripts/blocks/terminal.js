@@ -72,7 +72,7 @@ Terminal.buildType = prov(() => {
                     // Show it
                     dialog.show();
                 }
-				this.deselect();
+                this.deselect();
             }).size(40);
 	    
             table.button(Icon.terminal, () => {
@@ -123,14 +123,14 @@ Terminal.buildType = prov(() => {
 
         write(stream) {
             this.super$write(stream);
-			stream.str(this.getText().toString());
-			stream.bool(this.getError());
+            stream.str(this.getText().toString());
+            stream.bool(this.getError());
         },
 
         read(stream, revision) {
             this.super$read(stream, revision);
-			this.setText(stream.str());
-			this.setError(stream.bool());
+            this.setText(stream.str());
+            this.setError(stream.bool());
         }
     });
 
