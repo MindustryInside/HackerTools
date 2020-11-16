@@ -13,85 +13,93 @@ const Terminal = extendContent(Block, "terminal", {
         const terminalBase = Core.atlas.find(this.name);
         const terminalDisplay = Core.atlas.find(this.name + "-display-icon");
         return [terminalBase, terminalDisplay];
-    },
+    }
 });
 
 Terminal.buildType = prov(() => {
     const TerminalBuild = extend(Building, {
 
+        // Initialization
+        created() {
+            this.setText("");
+            this.setError(false);
+
+            this.super$created();
+        },
+
         // Draw block
         draw() {
-            Draw.rect(Terminal.region, tile.drawx(), tile.drawy());
-            this.drawLayer();
+            Draw.rect(Terminal.region, this.tile.drawx(), this.tile.drawy());
+            this.drawDisplay();
         },
-	    
+
         // Draw block display
-        drawLayer() {
-	    
+        drawDisplay() {
+
             // If error draw red display instead blue
             Draw.color(this.getError() ? Color.valueOf("E55454") : Color.valueOf("88A4FF"));
-	    
-            Draw.rect(Terminal.displayRegion, tile.drawx(), tile.drawy());
-	    
+
+            Draw.rect(Terminal.displayRegion, this.tile.drawx(), this.tile.drawy());
+
             // Caret flash
             if (Mathf.sin(Time.time(), 10, 1) > 0) {
-                Draw.rect(Terminal.caretRegion, tile.drawx(), tile.drawy());
+                Draw.rect(Terminal.caretRegion, this.tile.drawx(), this.tile.drawy());
             }
             Draw.reset();
         },
-	    
+
         // Called when player clicks on block
         buildConfiguration(table) {
-	    
+
             // Add buttons
             table.button(Icon.pencil, () => {
                 if (Vars.mobile) {
-	    
+
                     // Mobile and desktop version have different dialogs
                     const input = new Input.TextInput();
                     input.text = this.getText();
                     input.multiline = true;
                     input.accepted = cons(text => this.setText(text));
-	    
+
                     Core.input.getTextInput(input);
                 } else {
                     // Create dialog
                     const dialog = new BaseDialog(Core.bundle.get("block." + Terminal.name + ".terminal-caption"));
                     dialog.setFillParent(false);
-	    
+
                     // Add text area to dialog
                     const textArea = new TextArea(this.getText());
                     dialog.cont.add(textArea).size(380, 160);
-	    
+
                     // Add "ok" button to dialog
                     dialog.buttons.button("@ok", run(() => {
                         this.setText(textArea.getText());
                         dialog.hide();
                     }));
-	    
+
                     // Show it
                     dialog.show();
                 }
                 this.deselect();
             }).size(40);
-	    
+
             table.button(Icon.terminal, () => {
                 try {
-	    
+
                     // If there is no text in block return undefined
-                    // In other case put output to entity._result
+                    // In other case put output to this._result
                     this.setResult(this.getText()
                         ? eval.bind(Vars.mods.getScripts(), this.getText())()
                         : undefined);
-	    
+
                     // Log with [I] mark
-                    Log.info("[#ffea4a]" + this.localizedName + ": [] " + this.getResult());
+                    Log.info("[#ffea4a]" + Terminal.localizedName + " [[" + this.tile.x + "," + this.tile.y + "]: [] " + this.getResult());
                     this.setError(false);
-	    
+
                 } catch (err) { // If error appear print it instead crash the game
-	    
+
                     // Log with [E] mark
-                    Log.err("[#ff5a54]" + this.localizedName + ": []" + err);
+                    Log.err("[#ff5a54]" + Terminal.localizedName + " [[" + this.tile.x + "," + this.tile.y + "]: []" + err);
                     this.setError(true);
                 }
             }).size(40);
